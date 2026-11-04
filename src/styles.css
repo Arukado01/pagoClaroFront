@@ -23,3 +23,20 @@
 [data-theme=dark] .auth-switch button{color:#a9dfbe}
 [data-theme=dark] .auth-switch button:hover:not(:disabled){color:#d1f2dc}
 [data-theme=dark] .auth-switch button:active:not(:disabled){color:#83c69b}
+
+/* Keep navigation in view while allowing access to every control on short screens. */
+@media (min-width: 761px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sidebar > * {
+    flex-shrink: 0;
+  }
+}
