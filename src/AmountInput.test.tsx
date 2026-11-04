@@ -5,9 +5,11 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import userEvent from '@testing-library/user-event';
 import AmountInput, { amountSeparators, formatAmountInput, isValidPastedAmount, parseAmountInput } from './AmountInput';
 import { CreateOrder } from './main';
+import { celebrateOrder } from './celebration';
 
 vi.hoisted(() => { Object.defineProperty(window, 'matchMedia', { configurable: true, value: () => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} }) }); });
-beforeEach(() => { localStorage.clear(); sessionStorage.clear(); });
+vi.mock('./celebration', () => ({ celebrateOrder: vi.fn(), stopCelebration: vi.fn() }));
+beforeEach(() => { localStorage.clear(); sessionStorage.clear(); vi.clearAllMocks(); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe('formato y validación de importes', () => {
@@ -135,6 +137,7 @@ describe('formato y validación de importes', () => {
     await user.type(screen.getByLabelText('Valor'), '1234567,89');
     await user.click(screen.getByRole('button', { name: 'Crear orden' }));
     await waitFor(() => expect(created).toHaveBeenCalled());
+    expect(celebrateOrder).toHaveBeenCalledOnce();
     const [, options] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(JSON.parse(String(options.body))).toEqual({ reference: 'PED-123', amount: 1234567.89, currency: 'COP' });
   });
@@ -148,6 +151,31 @@ describe('formato y validación de importes', () => {
     await user.type(screen.getByLabelText('Valor'), '12.34');
     await user.click(screen.getByRole('button', { name: 'Crear orden' }));
     expect(fetchMock).not.toHaveBeenCalled();
+    expect(celebrateOrder).not.toHaveBeenCalled();
     expect(screen.getByRole('alert').textContent).toContain('decimales');
+  });
+
+  it('no celebra si el servidor rechaza la orden', async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ message: 'Error' }), { status: 400, headers: { 'Content-Type': 'application/json' } })));
+    render(<CreateOrder token="test" onClose={() => {}} onCreated={() => {}} />);
+    await user.type(screen.getByPlaceholderText('PED-2026-001'), 'PED-123');
+    await user.type(screen.getByLabelText('Valor'), '1234');
+    await user.click(screen.getByRole('button', { name: 'Crear orden' }));
+    await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy());
+    expect(celebrateOrder).not.toHaveBeenCalled();
+  });
+
+  it('reinicia el formulario al cerrar y volver a abrir el modal', async () => {
+    const user = userEvent.setup();
+    const props = { token: 'test', onClose: () => {}, onCreated: () => {} };
+    const { rerender } = render(<CreateOrder {...props} open />);
+    await user.type(screen.getByPlaceholderText('PED-2026-001'), 'PED-123');
+    await user.type(screen.getByLabelText('Valor'), '1234');
+    rerender(<CreateOrder {...props} open={false} />);
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    rerender(<CreateOrder {...props} open />);
+    expect((screen.getByPlaceholderText('PED-2026-001') as HTMLInputElement).value).toBe('');
+    expect((screen.getByLabelText('Valor') as HTMLInputElement).value).toBe('');
   });
 });

@@ -1,0 +1,47 @@
+/* Radix keeps closed content mounted until its CSS exit animation ends. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-slot="dialog-overlay"][data-state="open"],
+  .mobile-menu-overlay[data-state="open"] {
+    animation: pc-overlay-enter 200ms ease-out both;
+  }
+
+  [data-slot="dialog-overlay"][data-state="closed"],
+  .mobile-menu-overlay[data-state="closed"] {
+    animation: pc-overlay-exit 160ms ease-in both;
+  }
+
+  [data-slot="dialog-content"][data-state="open"] {
+    animation: pc-dialog-enter 240ms cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  [data-slot="dialog-content"][data-state="closed"] {
+    animation: pc-dialog-exit 160ms ease-in both;
+  }
+
+  .mobile-menu-panel[data-state="open"] {
+    animation: pc-menu-enter 260ms cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  .mobile-menu-panel[data-state="closed"] {
+    animation: pc-menu-exit 190ms ease-in both;
+  }
+
+  [data-slot="select-content"][data-state="open"] {
+    transform-origin: var(--radix-select-content-transform-origin, center top);
+    animation: pc-select-enter 170ms cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  [data-slot="select-content"][data-state="closed"] {
+    transform-origin: var(--radix-select-content-transform-origin, center top);
+    animation: pc-select-exit 130ms ease-in both;
+  }
+}
+
+@keyframes pc-overlay-enter { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pc-overlay-exit { from { opacity: 1; } to { opacity: 0; } }
+@keyframes pc-dialog-enter { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes pc-dialog-exit { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(8px) scale(.98); } }
+@keyframes pc-menu-enter { from { opacity: .8; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+@keyframes pc-menu-exit { from { opacity: 1; transform: translateX(0); } to { opacity: .8; transform: translateX(100%); } }
+@keyframes pc-select-enter { from { opacity: 0; transform: translateY(-4px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes pc-select-exit { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-3px) scale(.98); } }

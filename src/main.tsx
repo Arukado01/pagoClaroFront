@@ -7,6 +7,7 @@ import Pager, { Choice } from './Pager';
 import { Preferences, tr, locale, language } from './i18n';
 import AmountInput from './AmountInput';
 import MobileMenu from './MobileMenu';
+import { celebrateOrder, stopCelebration } from './celebration';
 import { Button as ShadcnButton } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import type { Session, Order, Payment, AuditEvent, Page } from './types';
@@ -206,10 +207,12 @@ function Login({
   return <div className="login-page"><div className="login-aside"><Brand /><div className="login-story"><span className="eyebrow light">{tr("PAGOS CON CLARIDAD")}</span><h1>{tr("Cada pago cuenta.")}<br /><em>{tr("Cada estado, también.")}</em></h1><p>{tr("Un espacio para seguir tus órdenes y entender qué está pasando en cada intento de pago.")}</p><div className="login-proof"><Icon name="shield" /><span>{tr("Seguimiento claro, de principio a fin.")}</span></div></div><span className="aside-footer">© All rights reserved Carlos Cortina 2026</span></div><main className="login-main"><div className="login-preferences"><Preferences /></div><div className="mobile-brand"><Brand /></div><form className="login-form" onSubmit={submit}><span className="eyebrow">{registering ? tr("CREA TU CUENTA") : tr("BIENVENIDO DE NUEVO")}</span><h2>{registering ? tr("Crear cuenta") : tr("Iniciar sesión")}</h2><p>{registering ? tr("Regístrate para consultar el estado de las operaciones.") : tr("Ingresa tus credenciales para acceder al panel de operaciones.")}</p>{error && <Alert onClose={() => setError('')}>{error}</Alert>}{notice && <Alert type="success" onClose={() => setNotice('')}>{notice}</Alert>}<label>{tr("Usuario")}<input autoComplete="username" required minLength={registering ? 3 : undefined} maxLength={registering ? 50 : undefined} pattern={registering ? '[A-Za-z0-9._-]+' : undefined} title={registering ? tr("Usa letras, números, punto, guion o guion bajo.") : undefined} value={username} onChange={e => setUsername(e.target.value)} placeholder={tr("Tu usuario")} />{registering && <small className="field-hint">{tr("De 3 a 50 caracteres: letras, números, punto, guion o guion bajo.")}</small>}</label><label>{tr("Contraseña")}<input type="password" autoComplete={registering ? 'new-password' : 'current-password'} required value={password} onChange={e => setPassword(e.target.value)} placeholder={tr("Tu contraseña")} />{registering && <small className="field-hint">{tr("Entre 12 y 72 bytes; usa una contraseña segura.")}</small>}</label>{registering && <label>{tr("Confirmar contraseña")}<input type="password" autoComplete="new-password" required value={confirmation} onChange={e => setConfirmation(e.target.value)} placeholder={tr("Repite tu contraseña")} /></label>}<Button type="submit" disabled={loading}>{loading ? registering ? tr("Creando cuenta…") : tr("Ingresando…") : registering ? tr("Crear cuenta") : tr("Ingresar al panel")}</Button><div className="auth-switch">{registering ? tr("¿Ya tienes una cuenta?") : tr("¿Aún no tienes cuenta?")} <button type="button" onClick={() => changeMode(registering ? 'login' : 'register')} disabled={loading}>{registering ? tr("Inicia sesión") : tr("Regístrate")}</button></div><p className="login-help"><Icon name="shield" size={16} /> {registering ? tr("Tu cuenta tendrá acceso de consulta.") : tr("Acceso protegido para usuarios autorizados.")}</p></form></main></div>;
 }
 export function CreateOrder({
+  open = true,
   token,
   onClose,
   onCreated
 }: {
+  open?: boolean;
   token: string;
   onClose: () => void;
   onCreated: (order: Order) => void;
@@ -219,7 +222,17 @@ export function CreateOrder({
   const [currency, setCurrency] = useState('COP');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [formVersion, setFormVersion] = useState(0);
   const first = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (open) {
+      setReference('');
+      setAmount('');
+      setCurrency('COP');
+      setError('');
+      setFormVersion(version => version + 1);
+    }
+  }, [open]);
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const numericAmount = Number(amount);
@@ -239,6 +252,7 @@ export function CreateOrder({
           currency
         })
       });
+      celebrateOrder();
       onCreated(order);
     } catch (err) {
       setError(errorMessage(err));
@@ -246,12 +260,12 @@ export function CreateOrder({
       setSaving(false);
     }
   }
-  return <Dialog open onOpenChange={open => {
-    if (!open && !saving) onClose();
+  return <Dialog open={open} onOpenChange={nextOpen => {
+    if (!nextOpen && !saving) onClose();
   }}><DialogContent className="modal" showCloseButton={false} onOpenAutoFocus={e => {
       e.preventDefault();
       first.current?.focus();
-    }}><div className="modal-heading"><div><span className="eyebrow">{tr("NUEVA OPERACIÓN")}</span><DialogTitle id="new-order-title">{tr("Crear orden")}</DialogTitle><DialogDescription>{tr("Registra los datos para comenzar el seguimiento.")}</DialogDescription></div><button className="icon-button" onClick={onClose} aria-label={tr("Cerrar")} disabled={saving}><Icon name="close" /></button></div><form onSubmit={submit}>{error && <Alert>{error}</Alert>}<label>{tr("Referencia de la orden")}<input ref={first} required maxLength={100} value={reference} onChange={e => setReference(e.target.value)} placeholder="PED-2026-001" /><small>{tr("Usa una referencia que puedas reconocer después.")}</small></label><div className="form-row"><label>{tr("Valor")}<AmountInput onAmountChange={setAmount} /></label><label>{tr("Moneda")}<select value={currency} onChange={e => setCurrency(e.target.value)}><option value="COP">COP</option><option value="USD">USD</option><option value="EUR">EUR</option></select></label></div><div className="modal-actions"><Button variant="secondary" type="button" onClick={onClose} disabled={saving}>{tr("Cancelar")}</Button><Button type="submit" disabled={saving}>{saving ? tr("Creando…") : tr("Crear orden")}</Button></div></form></DialogContent></Dialog>;
+    }}><div className="modal-heading"><div><span className="eyebrow">{tr("NUEVA OPERACIÓN")}</span><DialogTitle id="new-order-title">{tr("Crear orden")}</DialogTitle><DialogDescription>{tr("Registra los datos para comenzar el seguimiento.")}</DialogDescription></div><button className="icon-button" onClick={onClose} aria-label={tr("Cerrar")} disabled={saving}><Icon name="close" /></button></div><form onSubmit={submit}>{error && <Alert>{error}</Alert>}<label>{tr("Referencia de la orden")}<input ref={first} required maxLength={100} value={reference} onChange={e => setReference(e.target.value)} placeholder="PED-2026-001" /><small>{tr("Usa una referencia que puedas reconocer después.")}</small></label><div className="form-row"><label>{tr("Valor")}<AmountInput key={formVersion} onAmountChange={setAmount} /></label><label>{tr("Moneda")}<select value={currency} onChange={e => setCurrency(e.target.value)}><option value="COP">COP</option><option value="USD">USD</option><option value="EUR">EUR</option></select></label></div><div className="modal-actions"><Button variant="secondary" type="button" onClick={onClose} disabled={saving}>{tr("Cancelar")}</Button><Button type="submit" disabled={saving}>{saving ? tr("Creando…") : tr("Crear orden")}</Button></div></form></DialogContent></Dialog>;
 }
 const eventLabels: Record<string, string> = {
   ORDER_CREATED: tr("Orden creada"),
@@ -387,6 +401,7 @@ function OrderDetail({
   return <section className="detail-panel" aria-label={tr("Detalle de la orden")}><div className="detail-top"><button className="text-button back-button" onClick={onBack}>{tr("← Todas las órdenes")}</button><button className="icon-button" onClick={onRefresh} aria-label={tr("Actualizar detalle")} disabled={loading}><Icon name="refresh" size={18} /></button></div>{loading && !order ? <div className="detail-skeleton" aria-label={tr("Cargando detalle")}><Skeleton /><Skeleton /><Skeleton /><Skeleton /></div> : error && !order ? <div className="empty"><p>{error}</p><Button variant="secondary" onClick={onRefresh}>{tr("Reintentar")}</Button></div> : order && <><span className="eyebrow">{tr("DETALLE DE LA ORDEN")}</span><div className="detail-title"><h2>{order.reference}</h2><Status value={order.status} /></div><p className="detail-date">{tr("Creada el {0}", date(order.createdAt))}</p><div className="amount-box"><span>{tr("Valor de la orden")}</span><strong>{money(order.amount, order.currency)}</strong></div>{canManage && <div className="detail-actions"><Button icon="plus" onClick={onPay} disabled={paying || order.status !== 'PENDING' || hasActivePayment}>{paying ? tr("Iniciando pago…") : tr("Iniciar pago")}</Button>{order.status !== 'PENDING' ? <small>{tr("Esta orden ya no admite nuevos intentos.")}</small> : hasActivePayment && <small>{tr("Espera el resultado del intento actual antes de iniciar otro.")}</small>}</div>}<div className="section-heading"><div><span className="eyebrow">{tr("ACTIVIDAD")}</span><h3>{tr("Intentos de pago")}</h3></div><span className="count">{paymentLoading ? '—' : paymentTotal}</span></div>{error && <Alert>{error}</Alert>}{paymentLoading ? <div className="audit-loading" aria-label={tr("Cargando intentos de pago")}><Skeleton /><Skeleton /><Skeleton /></div> : paymentError ? <div className="audit-message" role="alert">{"" + tr("No pudimos cargar los intentos.") + " "}<button className="inline-action" onClick={() => setRefresh(n => n + 1)}>{tr("Reintentar")}</button></div> : payments.length ? <div className="payment-list">{payments.map(p => <article className="payment-item" key={p.id}><div className="payment-icon"><Icon name="receipt" size={18} /></div><div className="payment-info"><div className="payment-head"><strong>{tr("Intento de pago")}</strong><Status value={p.status} /></div><p>{paymentText[p.status] || tr("Consulta el estado de este intento.")}</p><small>{date(p.createdAt)}{p.providerReference ? ` · Ref. ${p.providerReference}` : ''}</small>{canManage && ['PENDING', 'UNKNOWN'].includes(p.status) && <button className="reconcile-button" onClick={() => onReconcile(p.id)} disabled={Boolean(reconciling)}>{reconciling === p.id ? tr("Consultando…") : tr("Consultar al proveedor")}</button>}{p.redirectUrl && p.status === 'PENDING' && <a className="provider-link" href={p.redirectUrl} target="_blank" rel="noopener noreferrer">{"" + tr("Continuar en el proveedor") + " "}<Icon name="external" size={14} /></a>}</div></article>)}</div> : <div className="empty small-empty"><span className="empty-icon"><Icon name="receipt" /></span><strong>{tr("Aún no hay intentos")}</strong><p>{canManage ? tr("Inicia un pago para ver aquí su evolución.") : tr("Los intentos aparecerán aquí cuando estén disponibles.")}</p></div>}{!paymentLoading && !paymentError && <Pager label={tr("intentos")} total={paymentTotal} page={paymentPage} setPage={setPaymentPage} size={paymentSize} setSize={setPaymentSize} />}<AuditTrail orderId={order.id} token={token} revision={eventRevision} /><div className="detail-note"><Icon name="shield" size={17} /><p>{tr("Los estados pueden tardar en actualizarse mientras el proveedor confirma el resultado.")}</p></div></>}</section>;
 }
 export function App() {
+  useEffect(() => () => stopCelebration(), []);
   const [session, setSession] = useState<Session | null>(() => {
     try {
       const saved = sessionStorage.getItem(sessionKey);
@@ -577,16 +592,18 @@ export function App() {
                   label: tr("Canceladas")
                 }]} /></div>{loading ? <div className="order-list" aria-label={tr("Cargando órdenes")}>{[1, 2, 3].map(i => <div className="order-row skeleton-row" key={i}><Skeleton /><Skeleton /><Skeleton /></div>)}</div> : !filtered.length ? <div className="empty"><span className="empty-icon"><Icon name="receipt" size={23} /></span><strong>{error ? tr("No pudimos cargar las órdenes") : query || filter !== 'ALL' ? tr("No encontramos órdenes") : tr("Todavía no hay órdenes")}</strong><p>{error ? tr("Vuelve a intentarlo cuando la conexión esté disponible.") : query || filter !== 'ALL' ? tr("Prueba con otra búsqueda o cambia el filtro.") : canManage ? tr("Crea tu primera orden para comenzar a hacer seguimiento.") : tr("Las órdenes aparecerán aquí cuando estén disponibles.")}</p>{!orders.length && !error && !query && filter === 'ALL' && canManage && <Button variant="secondary" icon="plus" onClick={() => setCreating(true)}>{tr("Crear orden")}</Button>}</div> : <><div className="table-head"><span>{tr("ORDEN")}</span><span>{tr("VALOR")}</span><span>{tr("ESTADO")}</span><span /></div><div className="order-list">{filtered.map(order => <button className={`order-row ${selectedId === order.id ? 'selected' : ''}`} key={order.id} onClick={() => selectOrder(order.id)} aria-pressed={selectedId === order.id}><span className="order-reference"><span className="order-icon"><Icon name="receipt" size={17} /></span><span><strong>{order.reference}</strong><small>{date(order.createdAt)}</small></span></span><span className="order-amount">{money(order.amount, order.currency)}</span><Status value={order.status} /><Icon className="row-arrow" name="arrow" size={18} /></button>)}</div></>}{!loading && !error && <Pager label={tr("órdenes")} total={total} page={page} setPage={setPage} size={pageSize} setSize={setPageSize} />}</section>{selectedId && <OrderDetail orderId={selectedId} order={detail} loading={detailLoading} error={detailError} onBack={() => selectOrder(null)} onRefresh={() => {
               if (selectedId) loadDetail(selectedId);
-            }} onPay={pay} paying={paying} canManage={canManage} onReconcile={reconcile} reconciling={reconciling} token={session.token} eventRevision={eventRevision} />}</div></>}<footer>© All rights reserved Carlos Cortina 2026</footer></main></div>{creating && <CreateOrder token={session.token} onClose={() => setCreating(false)} onCreated={order => {
+            }} onPay={pay} paying={paying} canManage={canManage} onReconcile={reconcile} reconciling={reconciling} token={session.token} eventRevision={eventRevision} />}</div></>}<footer>© All rights reserved Carlos Cortina 2026</footer></main></div><CreateOrder open={creating} token={session.token} onClose={() => setCreating(false)} onCreated={order => {
       setCreating(false);
       selectOrder(order.id);
       setNotice(tr("La orden se creó correctamente. Ya puedes iniciar un pago."));
       setPage(0);
       setRefreshKey(k => k + 1);
       loadOrders();
-    }} />}</div>;
+    }} /></div>;
 }
 const root = document.getElementById('root');
 if (root) createRoot(root).render(<React.StrictMode><App /></React.StrictMode>);
 import './tailwind.css';
+import './motion-content.css';
+import './motion-overlays.css';
 

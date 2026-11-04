@@ -1,0 +1,72 @@
+/* Content and interaction motion. The interface stays fully visible when the
+   operating system requests reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes content-reveal {
+    from { opacity: .5; transform: translateY(9px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes content-soft-reveal {
+    from { opacity: .55; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes chart-grow {
+    from { transform: scaleY(.08); opacity: .6; }
+    to { transform: scaleY(1); opacity: 1; }
+  }
+
+  .login-story, .login-form, .page-heading, .dashboard-heading {
+    animation: content-reveal 380ms cubic-bezier(.2, .7, .2, 1) both;
+  }
+
+  .metric-card, .chart-card, .orders-panel, .detail-panel, .admin-card {
+    animation: content-reveal 360ms cubic-bezier(.2, .7, .2, 1) both;
+    transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+  }
+
+  .metric-card:nth-child(2), .chart-card:nth-child(2), .admin-grid .admin-card:nth-child(2) { animation-delay: 35ms; }
+  .metric-card:nth-child(3) { animation-delay: 70ms; }
+  .metric-card:nth-child(4) { animation-delay: 105ms; }
+
+  .alert, .empty, .chart-empty, .payment-item, .audit-list li, .admin-user, .role-editor details[open] form {
+    animation: content-soft-reveal 240ms ease-out both;
+  }
+
+  .order-row {
+    animation: content-soft-reveal 220ms ease-out both;
+    transition: background-color 160ms ease, border-color 160ms ease;
+  }
+
+  .bar {
+    transform-origin: center bottom;
+    animation: chart-grow 520ms cubic-bezier(.2, .7, .2, 1) both;
+  }
+  .distribution-track > span { transition: width 320ms ease; }
+
+  .button, .icon-button, .reconcile-button, .sidebar nav button,
+  .pagination button, .mobile-menu-trigger, .mobile-menu-close,
+  .mobile-menu-links button, .mobile-menu-account button {
+    transition: background-color 160ms ease, border-color 160ms ease,
+      color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  }
+
+  input, select, textarea {
+    transition: background-color 160ms ease, border-color 160ms ease,
+      color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .row-arrow { transition: transform 160ms ease; }
+
+  @media (hover: hover) {
+    .metric-card:hover, .chart-card:hover, .admin-card:hover {
+      box-shadow: 0 14px 34px rgb(0 0 0 / 12%);
+    }
+    .order-row:hover .row-arrow { transform: translateX(4px); }
+    .button:not(:disabled):hover { transform: translateY(-1px); }
+  }
+
+  .button:not(:disabled):active, .icon-button:not(:disabled):active,
+  .pagination button:not(:disabled):active, .mobile-menu-trigger:active,
+  .mobile-menu-close:active { transform: scale(.97); }
+}
