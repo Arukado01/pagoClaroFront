@@ -14,3 +14,12 @@
 [data-theme=dark] .sidebar{background:linear-gradient(165deg,#1c2024,#121518 75%)}[data-theme=dark] .sidebar-card,[data-theme=dark] .user-info{border-color:#454c52}[data-theme=dark] .chart-summary span,[data-theme=dark] .distribution-total span,[data-theme=dark] .dashboard-meta,[data-theme=dark] .plot-grid,[data-theme=dark] .chart-axis,[data-theme=dark] .connection,[data-theme=dark] .legend small,[data-theme=dark] .audit-limit{color:#b8c0c7}[data-theme=dark] .plot-grid span:after{border-color:#495159}[data-theme=dark] .distribution-track{background:#353b41}[data-theme=dark] .search-box input::placeholder{color:#adb6bd}[data-theme=dark] .sidebar nav button:hover{background:#30383d}[data-theme=dark] .sidebar nav button.nav-active{background:#315d52}
 [data-theme=dark] .mobile-nav button{color:#c5cdd3}[data-theme=dark] .mobile-nav button[aria-current="page"]{color:#b8e4c8;border-color:#75b892}[data-theme=dark] .modal label,[data-theme=dark] .modal-heading p,[data-theme=dark] .modal label small{color:#c7d0d6}[data-theme=dark] .modal input::placeholder,[data-theme=dark] .login-form input::placeholder{color:#aab4bc}[data-theme=dark] .modal .icon-button{color:#cad4da}
 .page-input{width:64px;height:32px;border:1px solid #dce6de;border-radius:6px;background:#fff;color:#304c3c;padding:0 6px;font-size:11px}
+
+/* Dark authentication uses the same neutral graphite surfaces as the workspace. */
+[data-theme=dark] .login-aside{background:radial-gradient(circle at 85% 30%,#343a40 0,#22272c 42%,#15191d 100%);color:#edf0f2}
+[data-theme=dark] .login-story p,[data-theme=dark] .login-proof,[data-theme=dark] .aside-footer{color:#c5cdd3}
+[data-theme=dark] .login-aside .eyebrow.light{color:#c5cdd3}
+[data-theme=dark] .auth-switch{color:#bbc3ca}
+[data-theme=dark] .auth-switch button{color:#a9dfbe}
+[data-theme=dark] .auth-switch button:hover:not(:disabled){color:#d1f2dc}
+[data-theme=dark] .auth-switch button:active:not(:disabled){color:#83c69b}
