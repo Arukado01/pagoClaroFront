@@ -3,7 +3,7 @@ export interface Order { id: string; reference: string; amount: number; currency
 export interface Payment { id: string; status: string; providerReference?: string; redirectUrl?: string | null; createdAt: string; updatedAt: string }
 export interface AuditEvent { id: string; eventType: string; occurredAt: string }
 export interface Page<T> { content: T[]; totalElements: number; totalPages: number; number: number; size: number }
-export interface AdminUser { id: string; username: string; enabled: boolean; roles: string[] }
+export interface AdminUser { id: string; username: string; enabled: boolean; role?: string; roles: string[] }
 export interface Role { id: string; name: string; permissions: string }
 export interface Permission { name: string }
 export interface SummaryTotals { orders: number; payments: number; pending: number; approved: number; rejected: number; unknown: number }

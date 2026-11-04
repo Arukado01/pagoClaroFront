@@ -25,6 +25,12 @@
 [data-theme=dark] .auth-switch button:active:not(:disabled){color:#83c69b}
 
 /* Keep navigation in view while allowing access to every control on short screens. */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
 @media (min-width: 761px) {
   .sidebar {
     position: sticky;

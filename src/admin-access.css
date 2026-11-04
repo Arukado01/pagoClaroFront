@@ -1,0 +1,32 @@
+.admin-role-select, .admin-user-search input {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  margin-top: 8px;
+  padding: 0 12px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font: inherit;
+}
+.admin-user-search { display: block; max-width: 420px; margin-bottom: 18px; font-size: 12px; font-weight: 700; }
+.admin-user-role { width: min(230px, 100%); font-size: 11px; font-weight: 700; }
+.admin-user-role .admin-role-select { margin-top: 5px; }
+.permission-options { display: grid; gap: 12px; }
+.permission-option { display: flex; align-items: flex-start; gap: 9px; font-size: 11px; line-height: 1.4; }
+.permission-option input { flex: none; width: 16px; height: 16px; margin: 1px 0 0; accent-color: #1d5b4e; }
+.permission-option strong, .permission-option small { display: block; overflow-wrap: anywhere; }
+.permission-option small { margin-top: 3px; color: var(--muted); font-size: 11px; font-weight: 400; }
+.role-editor { display: grid; gap: 10px; padding: 16px 0; border-top: 1px solid var(--border); }
+.role-editor-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; font-size: 12px; }
+.role-editor-heading span, .role-explanation { color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+.role-explanation { margin: 0; line-height: 1.5; }
+.role-editor details summary { width: fit-content; cursor: pointer; font-size: 12px; font-weight: 700; }
+.role-editor details form { margin-top: 14px; }
+.role-editor details fieldset { margin-bottom: 14px; }
+[data-theme=dark] .admin-card form > label input:not([type=checkbox]) {
+  color: var(--ink);
+  background: #272c31;
+  border-color: #555d65;
+}

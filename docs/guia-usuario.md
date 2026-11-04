@@ -4,11 +4,11 @@ Pago Claro es una demostración de seguimiento de órdenes y pagos asíncronos. 
 
 ## Registro e ingreso
 
-1. Abre la aplicación y selecciona **Regístrate**.
+1. Abre la aplicación en [Pago Claro](https://d2ptzxtlhkwxzt.cloudfront.net) y selecciona **Regístrate**.
 2. Elige un usuario de 3 a 50 caracteres: letras, números, punto, guion o guion bajo. Introduce y confirma una contraseña de 12 a 72 bytes UTF-8.
 3. Selecciona **Crear cuenta**. Después del mensaje de confirmación, inicia sesión con esas credenciales.
 
-La cuenta nueva recibe el rol `VIEWER`, con acceso de consulta. Las funciones de gestión requieren que un administrador asigne un rol con el permiso `PAYMENTS_MANAGE`. Para actualizar la interfaz después de un cambio de permisos, cierra sesión y vuelve a entrar. Si el nombre ya existe o la solicitud falla, revisa el mensaje y vuelve a intentarlo. No hay recuperación de contraseña por autoservicio en esta demostración.
+La cuenta nueva recibe el rol `USER`, con acceso de consulta. Las funciones de gestión requieren que un administrador asigne un rol con el permiso `PAYMENTS_MANAGE`. Para actualizar la interfaz después de un cambio de permisos, cierra sesión y vuelve a entrar. Si el nombre ya existe o la solicitud falla, revisa el mensaje y vuelve a intentarlo. No hay recuperación de contraseña por autoservicio en esta demostración.
 
 ## Tablero
 
@@ -34,6 +34,8 @@ Si no hay resultados, cambia la búsqueda o el filtro. Una orden seleccionada mu
 
 Si se interrumpe la solicitud de inicio, volver a intentarla desde la misma sesión conserva su clave de idempotencia. Si cierras la pestaña antes de confirmar el resultado, consulta la orden antes de repetir la acción: la clave local no persiste entre sesiones. Los mensajes de error indican cuándo reintentar; no suponen que un pago incierto haya fallado.
 
+Al escribir el importe, los separadores de miles se agregan automáticamente según el idioma. Se admiten hasta 13 dígitos enteros y dos decimales; por ejemplo, en español `1.234.567,89`. Usa el separador decimal del idioma activo. Si pegas un valor con formato incompatible, el campo lo indicará para evitar interpretaciones equivocadas.
+
 ## Consultar un pago pendiente o incierto
 
 **Permiso necesario:** `PAYMENTS_MANAGE`.
@@ -44,12 +46,14 @@ En el detalle de una orden, selecciona **Consultar al proveedor** en un intento 
 
 **Acceso necesario:** rol `ADMIN`.
 
-En **Usuarios y roles**, crea usuarios, crea roles seleccionando permisos y asigna o retira roles de los usuarios. Las listas incluyen paginación y tamaño de página. Los usuarios recién creados necesitan un rol apropiado para acceder. El backend evita que un administrador se quite su propio rol `ADMIN`. No existe edición de permisos de un rol ya creado ni desactivación de usuarios en la interfaz actual.
+En **Usuarios y roles**, crea usuarios seleccionando un rol para cada uno. Busca un usuario por nombre y cambia su rol mediante el selector de su fila. Cada cuenta tiene exactamente un rol. Las listas incluyen paginación y tamaño de página.
+
+Para crear un rol, indica su nombre y selecciona sus permisos. En **Roles y permisos**, abre **Editar permisos** para consultar lo que permite cada opción y guardar los cambios. El rol `ADMIN` administra usuarios y roles y debe conservar el permiso de gestión. La plataforma evita que un administrador se quite su propio rol `ADMIN` o que el sistema quede sin administradores. La desactivación de usuarios no está disponible en esta interfaz.
 
 ## Apariencia e idioma
 
-Usa los selectores de la parte superior para escoger el tema claro, oscuro o el del sistema, y el idioma: español, inglés, portugués, alemán, francés, japonés o chino simplificado. Las preferencias se guardan en el navegador. El tema del sistema se actualiza si cambia la preferencia del dispositivo. Cambiar el idioma recarga la interfaz y adapta los formatos de fechas, números y moneda.
+Usa los selectores de la parte superior para escoger el tema claro, oscuro o el del sistema, y el idioma: español, inglés, portugués, alemán, francés, japonés o chino simplificado. En móvil, abre el menú para encontrar la navegación, los selectores y el cierre de sesión. Las preferencias se guardan en el navegador. El tema del sistema se actualiza si cambia la preferencia del dispositivo. Cambiar el idioma recarga la interfaz y adapta los formatos de fechas, números y moneda.
 
 ## Cerrar sesión
 
-Usa el botón con el icono de salida. El token de la pestaña se elimina. Para entornos reales debe revisarse el modelo de sesión descrito en el README del frontend.
+Usa el botón con el icono de salida; en móvil está dentro del menú. La sesión de esa pestaña se cierra.

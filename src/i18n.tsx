@@ -10,7 +10,14 @@ function applyTheme(mode: Theme): void { const dark = mode === 'dark' || (mode =
 export function Preferences() {
   const [theme, setTheme] = useState<Theme>(storedTheme); const [lang] = useState<Language>(language);
   useEffect(() => { applyTheme(theme); const media = window.matchMedia('(prefers-color-scheme: dark)'); const change = () => applyTheme(theme); media.addEventListener('change', change); return () => media.removeEventListener('change', change); }, [theme]);
-  function updateTheme(value: Theme) { setTheme(value); try { localStorage.setItem('pagoclaro.theme', value); } catch {} }
+  useEffect(() => {
+    const sync = (event: Event) => { const value = (event as CustomEvent<Theme>).detail; if (value === 'system' || value === 'light' || value === 'dark') setTheme(value); };
+    const syncStorage = (event: StorageEvent) => { if (event.key === 'pagoclaro.theme') setTheme(storedTheme()); };
+    window.addEventListener('pagoclaro-theme-change', sync);
+    window.addEventListener('storage', syncStorage);
+    return () => { window.removeEventListener('pagoclaro-theme-change', sync); window.removeEventListener('storage', syncStorage); };
+  }, []);
+  function updateTheme(value: Theme) { setTheme(value); try { localStorage.setItem('pagoclaro.theme', value); } catch {} window.dispatchEvent(new CustomEvent('pagoclaro-theme-change', { detail: value })); }
   function updateLanguage(value: Language) { try { localStorage.setItem('pagoclaro.language', value); } catch {} document.documentElement.lang = value === 'zh' ? 'zh-Hans' : value; window.location.reload(); }
   return <div className="preferences"><label><span className="sr-only">{tr('Idioma')}</span><select aria-label={tr('Idioma')} value={lang} onChange={e => updateLanguage(e.target.value as Language)}><option value="es">Español</option><option value="en">English</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="ja">日本語</option><option value="zh">简体中文</option></select></label><label><span className="sr-only">{tr('Apariencia')}</span><select aria-label={tr('Apariencia')} value={theme} onChange={e => updateTheme(e.target.value as Theme)}><option value="system">{tr('Sistema')}</option><option value="light">{tr('Claro')}</option><option value="dark">{tr('Oscuro')}</option></select></label></div>;
 }

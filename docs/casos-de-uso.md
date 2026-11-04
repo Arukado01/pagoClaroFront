@@ -6,7 +6,7 @@ Los casos describen el comportamiento de la demostración y sus permisos. La pas
 
 - **Actor y precondiciones:** visitante en la pantalla de ingreso; el servicio está disponible.
 - **Flujo:** selecciona registro; introduce usuario válido y contraseña; confirma; envía el formulario.
-- **Resultado:** se crea una cuenta `VIEWER`; el visitante vuelve al ingreso e inicia sesión por separado.
+- **Resultado:** se crea una cuenta `USER` con acceso de consulta; el visitante vuelve al ingreso e inicia sesión por separado.
 - **Alternativas:** usuario duplicado, datos inválidos o fallo de conexión producen un mensaje; no se inicia sesión automáticamente.
 
 ## CU-02 · Iniciar y cerrar sesión
@@ -26,7 +26,7 @@ Los casos describen el comportamiento de la demostración y sus permisos. La pas
 ## CU-04 · Crear orden e iniciar pago
 
 - **Actor y precondiciones:** usuario con `PAYMENTS_MANAGE`; referencia, valor y moneda válidos; para iniciar, la orden debe admitir un intento.
-- **Flujo:** crea orden; abre detalle; inicia pago; consulta estado e historial.
+- **Flujo:** crea orden con una referencia, valor y moneda; el valor se agrupa automáticamente según el idioma; abre detalle; inicia pago; consulta estado e historial.
 - **Resultado:** queda registrado un intento pendiente del proveedor simulado. La orden solo se marca pagada cuando se confirma aprobación.
 - **Alternativas:** referencia duplicada, orden incompatible o fallo de red presentan error. Al reintentar tras incertidumbre de red en la misma sesión se reutiliza la clave del intento.
 
@@ -40,6 +40,13 @@ Los casos describen el comportamiento de la demostración y sus permisos. La pas
 ## CU-06 · Administrar accesos
 
 - **Actor y precondiciones:** usuario con rol `ADMIN`.
-- **Flujo:** crea usuario; crea rol con permisos disponibles; asigna o retira roles; consulta las listas paginadas.
-- **Resultado:** el backend persiste las asignaciones. El usuario afectado vuelve a iniciar sesión para que la interfaz refleje los cambios.
-- **Alternativas:** conflictos, permiso insuficiente o datos inválidos se informan. No se permite que el administrador retire su propio rol `ADMIN`.
+- **Flujo:** crea un usuario con un rol; busca usuarios por nombre; elige un solo rol por usuario; consulta el catálogo y edita los permisos de cada rol.
+- **Resultado:** el servidor guarda la asignación y los permisos. El usuario afectado vuelve a iniciar sesión para que la interfaz refleje los cambios.
+- **Alternativas:** conflictos, permiso insuficiente o datos inválidos se informan. No se permite quitar el rol `ADMIN` propio ni dejar el sistema sin administradores; `ADMIN` conserva el permiso de gestión.
+
+## CU-07 · Adaptar la experiencia
+
+- **Actor y precondiciones:** usuario con acceso a la aplicación.
+- **Flujo:** selecciona el idioma y el tema claro, oscuro o del sistema. En móvil abre el menú de navegación para acceder a estas opciones.
+- **Resultado:** la preferencia se guarda en el navegador y la interfaz adapta los textos y formatos disponibles.
+- **Alternativas:** si cambia el tema del dispositivo y está elegida la opción del sistema, la interfaz se actualiza automáticamente.
