@@ -1,6 +1,6 @@
 # Pago Claro · Frontend
 
-Consola React para crear órdenes, iniciar intentos de pago y consultar su estado asíncrono. Es una implementación de apoyo al diseño técnico: no cobra dinero ni integra una pasarela real por sí sola.
+Consola React y TypeScript para crear órdenes, iniciar intentos de pago y consultar su estado asíncrono. Es una implementación de apoyo al diseño técnico: no cobra dinero ni integra una pasarela real por sí sola.
 
 ## Requisitos
 
@@ -19,6 +19,7 @@ Abre `http://localhost:5173`. Sin configuración adicional, Vite reenvía `/api`
 
 ```sh
 npm ci
+npm test
 npm run build
 ```
 
@@ -35,13 +36,14 @@ El proxy de `/api` corresponde al enrutador o balanceador externo; el contenedor
 
 ## Comportamiento
 
-- Inicio y cierre de sesión; el token se guarda en `sessionStorage` hasta cerrar la pestaña o la sesión. Este enfoque de demostración expone el token a JavaScript: para producción se recomienda evaluar cookies `HttpOnly`, `Secure`, `SameSite` y protección CSRF apropiada.
+- Registro autoservicio con rol de consulta `VIEWER`, inicio y cierre de sesión; el token se guarda en `sessionStorage` hasta cerrar la pestaña o la sesión. Este enfoque de demostración expone el token a JavaScript: para producción se recomienda evaluar cookies `HttpOnly`, `Secure`, `SameSite` y protección CSRF apropiada.
 - Creación y búsqueda de órdenes, estado de pago, detalle e historial de intentos. El detalle se actualiza cada 15 segundos mientras está abierto.
 - Al iniciar un intento se genera una clave de idempotencia, conservada en la sesión si la solicitud falla, para que un nuevo intento del usuario reutilice la misma clave. La garantía definitiva reside en el backend y el proveedor; perder la sesión hace perder esta clave local.
 - Un usuario ADMIN puede crear usuarios y roles, consultar permisos y asignar o quitar roles. La autorización se verifica en el backend.
 - Estados de carga con esqueletos, vacío, error y confirmación. La interfaz no presume que una solicitud pendiente o incierta haya sido aprobada.
-- Diseño adaptable, controles con etiquetas, foco visible y soporte de movimiento reducido.
+- Diseño adaptable con componentes shadcn/ui, controles con etiquetas, foco visible y soporte de movimiento reducido. Incluye temas claro, oscuro y automático, además de siete idiomas con formatos regionales.
+- Tablero agregado de los últimos 30 días, calculado por el backend con actualización periódica y fecha visible de corte, paginación de órdenes, intentos e historial, y conciliación manual con el proveedor simulado. Consulta [la guía](docs/guia-usuario.md) y [los casos de uso](docs/casos-de-uso.md).
 
 ## Límites
 
-El proveedor incluido en el backend es simulado; no se deben introducir datos reales de tarjetas. La interfaz no permite editar permisos de un rol ya creado ni desactivar usuarios; son extensiones pendientes. La configuración de HTTPS, cabeceras de seguridad, política CSP, expiración/renovación y almacenamiento de sesión aptos para producción requieren revisión antes de manejar pagos reales.
+El proveedor incluido en el backend es simulado; no se deben introducir datos reales de tarjetas. Los cambios de permisos requieren volver a iniciar sesión para actualizar los controles de interfaz; el backend sigue validando cada solicitud. La interfaz no permite editar permisos de un rol ya creado ni desactivar usuarios; son extensiones pendientes. La configuración de HTTPS, cabeceras de seguridad, política CSP, expiración/renovación y almacenamiento de sesión aptos para producción requieren revisión antes de manejar pagos reales.

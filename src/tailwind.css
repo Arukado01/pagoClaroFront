@@ -1,0 +1,5 @@
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@theme inline {
+ --color-primary: #1d5b4e; --color-primary-foreground: #ffffff; --color-background: #ffffff; --color-foreground: #203631; --color-card: #ffffff; --color-card-foreground: #203631; --color-accent: #edf6ee; --color-accent-foreground: #203631; --color-muted-foreground: #687b74; --color-secondary: #edf4ee; --color-secondary-foreground: #203631; --color-border: #dce6de; --color-input: #dce6de; --color-ring: #4b9170; --color-destructive: #a64139;
+}
